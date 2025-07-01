@@ -1,0 +1,51 @@
+services:
+  traefik:
+    image: traefik:v3.0
+    command:
+      - "--entrypoints.pg.address=:5432"
+      - "--entrypoints.web.address=:80"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "5432:5432"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik-net
+
+  postgresql:
+    image: postgres:17.5-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.postgresql.entrypoints=pg"
+      - "traefik.tcp.routers.postgresql.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.postgresql.tls=false"
+      # - "traefik.tcp.services.postgresql.loadbalancer.server.port=5432"
+    networks:
+      - traefik-net
+
+  pgadmin:
+    image: elestio/pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: test@email.com
+      PGADMIN_DEFAULT_PASSWORD: test
+      PGADMIN_LISTEN_PORT: 8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgadmin.entrypoints=web"
+      - "traefik.http.routers.pgadmin.rule=Host(`pgadmin.localhost`)"
+      - "traefik.http.routers.pgadmin.tls=false"
+      - "traefik.http.services.pgadmin.loadbalancer.server.port=8080"
+    networks:
+      - traefik-net
+
+networks:
+  traefik-net:
+    driver: bridge
