@@ -1,5 +1,8 @@
 services:
   # Tailscale authentication service from your provided image
+  # NOTE: Generate a reusable, ephemeral key for this setup
+  # This setup removes the container once done, which is bad for sharing
+  # to other tailnets
   tailscale:
     image: tailscale/tailscale:latest
     container_name: tailscale
