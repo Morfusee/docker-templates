@@ -1,0 +1,59 @@
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale_n8n
+    hostname: n8n
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_USERSPACE=false
+      - "TS_TAILSCALED_EXTRA_ARGS=--state=mem:"
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: db
+    restart: unless-stopped
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_NON_ROOT_USER=${POSTGRES_NON_ROOT_USER}
+      - POSTGRES_NON_ROOT_PASSWORD=${POSTGRES_NON_ROOT_PASSWORD}
+    volumes:
+      - ${PWD}/database:/var/lib/postgresql/data
+      - ${PWD}/init-database.sh:/docker-entrypoint-initdb.d/init-data.sh:ro
+    healthcheck:
+      test:
+        ["CMD-SHELL", "pg_isready -h localhost -U ${POSTGRES_USER} -d n8n"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  n8n:
+    image: n8nio/n8n
+    container_name: n8n
+    restart: unless-stopped
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=${DB_POSTGRESDB_HOST}
+      - DB_POSTGRESDB_DATABASE=${DB_POSTGRESDB_DATABASE}
+      - DB_POSTGRESDB_USER=${DB_POSTGRESDB_USER}
+      - DB_POSTGRESDB_PASSWORD=${DB_POSTGRESDB_PASSWORD}
+      - NODE_ENV=production
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - NODE_FUNCTION_ALLOW_BUILTIN=*
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      db:
+        condition: service_healthy
+    network_mode: service:tailscale
+
+volumes:
+  n8n_data:
