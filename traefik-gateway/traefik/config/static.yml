@@ -34,3 +34,15 @@ certificatesResolvers:
       email: admin@mcube.uk
       storage: /letsencrypt/acme.json
       tlsChallenge: true
+
+tls:
+  options:
+    default:
+      minVersion: VersionTLS12
+      sniStrict: true
+      cipherSuites:
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+      curvePreferences:
+        - CurveP521
+        - CurveP384
