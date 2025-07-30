@@ -1,0 +1,3 @@
+serversTransports:
+  insecure-skip:
+    insecureSkipVerify: true

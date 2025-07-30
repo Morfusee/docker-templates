@@ -1,0 +1,57 @@
+http:
+  routers:
+    server:
+      rule: "Host(`api.ferd.mcube.uk`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - cors
+        - security
+        - block-sensitive
+        - forwarded-headers
+      tls:
+        certResolver: tlsresolver
+      service: api-service
+
+  services:
+    api-service:
+      loadBalancer:
+        passHostHeader: true # This fixed something, idk what
+        # serversTransport: "insecure-skip"
+        servers:
+          - url: "http://production-server.hinny-carat.ts.net:3000"  # Home server exposed via Tailscale
+
+  middlewares:
+    forwarded-headers:
+      headers:
+        customRequestHeaders:
+          X-Forwarded-Proto: "https"
+    cors:
+      headers:
+        accessControlAllowOriginList:
+          - "https://ferd.mcube.uk"
+        accessControlAllowMethods:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+        accessControlAllowHeaders:
+          - Content-Type
+          - Authorization
+        accessControlAllowCredentials: true
+        accessControlMaxAge: 100
+        addVaryHeader: true
+
+    security:
+      headers:
+        sslRedirect: true
+        stsIncludeSubdomains: true
+        stsSeconds: 31536000
+
+    block-sensitive:
+      stripPrefix:
+        prefixes:
+          - "/.git"
+          - "/.env"
+          - "/config"
+        forceSlash: false
