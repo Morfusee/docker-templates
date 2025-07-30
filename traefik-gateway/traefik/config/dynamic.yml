@@ -44,14 +44,17 @@ http:
 
     security:
       headers:
-        sslRedirect: true
-        stsIncludeSubdomains: true
+        browserXssFilter: true
+        contentTypeNosniff: true
+        forceSTSHeader: true
         stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        stsPreload: true
+        frameDeny: true
+        sslRedirect: true
 
     block-sensitive:
-      stripPrefix:
-        prefixes:
-          - "/.git"
-          - "/.env"
-          - "/config"
-        forceSlash: false
+      redirectRegex:
+        regex: "^.*(\\.env|\\.git|docker-compose\\.yml|\\.htaccess|\\.htpasswd|config\\.json).*$"
+        replacement: "https://www.youtube.com/watch?v=xvFZjo5PgG0"
+        permanent: true
