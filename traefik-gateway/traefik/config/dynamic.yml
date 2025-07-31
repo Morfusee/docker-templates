@@ -35,6 +35,7 @@ http:
           - "POST"
           - "PUT"
           - "DELETE"
+          - "PATCH"
         accessControlAllowHeaders:
           - Content-Type
           - Authorization
