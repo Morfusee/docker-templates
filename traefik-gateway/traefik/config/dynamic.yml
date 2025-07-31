@@ -19,7 +19,7 @@ http:
         passHostHeader: true # This fixed something, idk what
         # serversTransport: "insecure-skip"
         servers:
-          - url: "http://production-server.hinny-carat.ts.net:3000"  # Home server exposed via Tailscale
+          - url: "http://ferd.home.production.mcube.uk"  # Home server exposed via Tailscale
 
   middlewares:
     forwarded-headers:
