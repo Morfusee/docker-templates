@@ -17,7 +17,7 @@ http:
     api-service:
       loadBalancer:
         passHostHeader: true # This fixed something, idk what
-        # serversTransport: "insecure-skip"
+        # serversTransport: "insecure-skip" # test
         servers:
           - url: "http://ferd.home.production.mcube.uk"  # Home server exposed via Tailscale
 
