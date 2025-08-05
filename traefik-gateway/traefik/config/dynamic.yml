@@ -1,35 +1,69 @@
 http:
   routers:
-    server:
+    server-ferd:
       rule: "Host(`api.ferd.mcube.uk`)"
       entryPoints:
         - websecure
       middlewares:
-        - cors
+        - cors-ferd
         - security
         - block-sensitive
         - forwarded-headers
       tls:
         certResolver: tlsresolver
-      service: api-service
+      service: api-ferd-service
+    server-portal:
+      rule: "Host(`api.portal.mcube.uk`)"
+      entryPoints:
+        - websecure
+      middlewares:
+        - cors-portal
+        - security
+        - block-sensitive
+        - forwarded-headers
+      tls:
+        certResolver: tlsresolver
+      service: api-portal-service
 
   services:
-    api-service:
+    api-ferd-service:
       loadBalancer:
         passHostHeader: true # This fixed something, idk what
         # serversTransport: "insecure-skip"
         servers:
           - url: "http://ferd.home.production.mcube.uk"  # Home server exposed via Tailscale
+    api-portal-service:
+      loadBalancer:
+        passHostHeader: true # This fixed something, idk what
+        # serversTransport: "insecure-skip"
+        servers:
+          - url: "http://desktop.hinny-carat.ts.net:3001"  # Home server exposed via Tailscale
 
   middlewares:
     forwarded-headers:
       headers:
         customRequestHeaders:
           X-Forwarded-Proto: "https"
-    cors:
+    cors-ferd:
       headers:
         accessControlAllowOriginList:
           - "https://ferd.mcube.uk"
+        accessControlAllowMethods:
+          - "GET"
+          - "POST"
+          - "PUT"
+          - "DELETE"
+          - "PATCH"
+        accessControlAllowHeaders:
+          - Content-Type
+          - Authorization
+        accessControlAllowCredentials: true
+        accessControlMaxAge: 100
+        addVaryHeader: true
+    cors-portal:
+      headers:
+        accessControlAllowOriginList:
+          - "*"
         accessControlAllowMethods:
           - "GET"
           - "POST"
