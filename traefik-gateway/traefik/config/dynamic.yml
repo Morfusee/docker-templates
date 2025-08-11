@@ -1,6 +1,5 @@
 http:
   routers:
-    # FERD Backend
     server-ferd:
       rule: "Host(`api.ferd.mcube.uk`)"
       entryPoints:
@@ -13,8 +12,6 @@ http:
       tls:
         certResolver: tlsresolver
       service: api-ferd-service
-    
-    # PayMongo Webhook Test URL
     server-portal:
       rule: "Host(`api.portal.mcube.uk`)"
       entryPoints:
@@ -28,19 +25,6 @@ http:
         certResolver: tlsresolver
       service: api-portal-service
 
-    # N8n self-hosted instance
-    n8n:
-      rule: "Host(`n8n.mcube.uk`)"
-      entryPoints:
-        - websecure
-      middlewares:
-        - security
-        - block-sensitive
-        - forwarded-headers
-      tls:
-        certResolver: tlsresolver
-      service: n8n-service
-
   services:
     api-ferd-service:
       loadBalancer:
@@ -48,20 +32,12 @@ http:
         # serversTransport: "insecure-skip"
         servers:
           - url: "http://ferd.home.production.mcube.uk"  # Home server exposed via Tailscale
-    
     api-portal-service:
       loadBalancer:
         passHostHeader: true # This fixed something, idk what
         # serversTransport: "insecure-skip"
         servers:
           - url: "http://desktop.hinny-carat.ts.net:3001"  # Home server exposed via Tailscale
-    
-    n8n-service:
-      loadBalancer:
-        passHostHeader: true # This fixed something, idk what
-        # serversTransport: "insecure-skip"
-        servers:
-          - url: "http://n8n.home.development.mcube.uk"  # Home server exposed via Tailscale
 
   middlewares:
     forwarded-headers:
