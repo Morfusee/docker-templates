@@ -30,7 +30,7 @@ http:
 
     # N8n self-hosted instance
     n8n:
-      rule: "Host(`n8n.mcube.uk`)"
+      rule: "Host(`auto.mcube.uk`)"
       entryPoints:
         - websecure
       middlewares:
@@ -61,7 +61,7 @@ http:
         passHostHeader: true # This fixed something, idk what
         # serversTransport: "insecure-skip"
         servers:
-          - url: "http://n8n.home.development.mcube.uk"  # Home server exposed via Tailscale
+          - url: "http://auto.home.development.mcube.uk"  # Home server exposed via Tailscale
 
   middlewares:
     forwarded-headers:
