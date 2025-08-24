@@ -13,7 +13,7 @@ services:
       - no-new-privileges:true
     command:
     #   - "--providers.file.filename=/etc/traefik/dynamic.yml"
-      - "--configFile=/etc/traefik/traefik.yml"
+      - "--configFile=/etc/traefik/config/traefik.yml"
     ports:
       - "80:80"
       - "443:443"
