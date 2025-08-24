@@ -1,0 +1,4 @@
+tls:
+  certificates:
+    - certFile: "/certs/home-server.hinny-carat.ts.net.crt"
+      keyFile: "/certs/home-server.hinny-carat.ts.net.key"
