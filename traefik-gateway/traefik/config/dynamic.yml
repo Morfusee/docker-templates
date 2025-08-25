@@ -16,14 +16,6 @@ http:
         certResolver: tlsresolver
       service: n8n-service
     
-    portal:
-      rule: "Host(`api.portal.mcube.uk`)"
-      entryPoints: [websecure]
-      middlewares: [cors-portal, default-chain]
-      tls:
-        certResolver: tlsresolver
-      service: portal-service
-
   services:
     ferd-service:
       loadBalancer:
@@ -36,35 +28,26 @@ http:
         passHostHeader: true
         servers:
           - url: "http://auto.home.development.mcube.uk"
-
-    portal-service:
-      loadBalancer:
-        passHostHeader: true
-        servers:
-          - url: "http://desktop.hinny-carat.ts.net:3001"
     
   middlewares:
-    base-cors:
+    cors-base:
       headers:
-        accessControlAllowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+        accessControlAllowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
         accessControlAllowHeaders: ["Content-Type", "Authorization"]
         accessControlAllowCredentials: true
         accessControlMaxAge: 100
         addVaryHeader: true
 
+    cors-ferd-allow:
+      headers:
+        accessControlAllowOriginList:
+          - "https://ferd.mcube.uk"
+
     cors-ferd:
       chain:
         middlewares:
-          - base-cors
-      headers:
-        accessControlAllowOriginList: ["https://ferd.mcube.uk"]
-
-    cors-portal:
-      chain:
-        middlewares:
-          - base-cors
-      headers:
-        accessControlAllowOriginList: ["*"]
+          - cors-ferd-allow
+          - cors-base
 
     forwarded-headers:
       headers:
