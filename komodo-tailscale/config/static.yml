@@ -1,0 +1,21 @@
+log:
+  level: DEBUG   
+  format: common
+
+accessLog:
+  format: common
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    watch: true
+    endpoint: "tcp://socket-proxy:2375"
+    exposedByDefault: false
+  file:
+    directory: /etc/traefik/config
+    watch: true

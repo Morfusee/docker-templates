@@ -8,19 +8,28 @@
 ##   3. Komodo Periphery
 
 services:
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    environment:
+      CONTAINERS: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_proxy
+
   traefik:
     image: traefik:v3.0
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     command:
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-      - "--entrypoints.websecure.address=:443"
+      - "--configFile=/etc/traefik/config/static.yml"
+    volumes:
+      - ./config:/etc/traefik/config:ro
     ports:
     # Do tailscale serve --bg https+insecure://127.0.0.1:443
-      - "127.0.0.1:80:80"
+      - "80:80"
       - "127.0.0.1:443:443"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - traefik_proxy
 
