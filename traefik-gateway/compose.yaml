@@ -1,15 +1,25 @@
 services:
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    environment:
+      CONTAINERS: 1
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - proxy
+
   traefik:
     image: traefik:latest
     container_name: traefik
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
     command:
     - "--configFile=/etc/traefik/config/static.yml"
     ports:
       - 80:80
       - 443:443
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/config:/etc/traefik/config:ro
       - ./traefik/logs:/traefik/logs
       - ./letsencrypt:/letsencrypt:rw
