@@ -1,105 +1,75 @@
 http:
   routers:
-    # FERD Backend
-    server-ferd:
+    ferd:
       rule: "Host(`api.ferd.mcube.uk`)"
-      entryPoints:
-        - websecure
-      middlewares:
-        - cors-ferd
-        - security
-        - block-sensitive
-        - forwarded-headers
+      entryPoints: [websecure]
+      middlewares: [cors-ferd, default-chain]
       tls:
         certResolver: tlsresolver
-      service: api-ferd-service
+      service: ferd-service
     
-    # PayMongo Webhook Test URL
-    server-portal:
-      rule: "Host(`api.portal.mcube.uk`)"
-      entryPoints:
-        - websecure
-      middlewares:
-        - cors-portal
-        - security
-        - block-sensitive
-        - forwarded-headers
-      tls:
-        certResolver: tlsresolver
-      service: api-portal-service
-
-    # N8n self-hosted instance
     n8n:
       rule: "Host(`auto.mcube.uk`)"
-      entryPoints:
-        - websecure
-      middlewares:
-        - security
-        - block-sensitive
-        - forwarded-headers
+      entryPoints: [websecure]
+      middlewares: [default-chain]
       tls:
         certResolver: tlsresolver
       service: n8n-service
+    
+    portal:
+      rule: "Host(`api.portal.mcube.uk`)"
+      entryPoints: [websecure]
+      middlewares: [cors-portal, default-chain]
+      tls:
+        certResolver: tlsresolver
+      service: portal-service
 
   services:
-    api-ferd-service:
+    ferd-service:
       loadBalancer:
-        passHostHeader: true # This fixed something, idk what
-        # serversTransport: "insecure-skip"
+        passHostHeader: true
         servers:
-          - url: "http://ferd.home.production.mcube.uk"  # Home server exposed via Tailscale
-    
-    api-portal-service:
-      loadBalancer:
-        passHostHeader: true # This fixed something, idk what
-        # serversTransport: "insecure-skip"
-        servers:
-          - url: "http://desktop.hinny-carat.ts.net:3001"  # Home server exposed via Tailscale
+          - url: "http://ferd.home.production.mcube.uk"
     
     n8n-service:
       loadBalancer:
-        passHostHeader: true # This fixed something, idk what
-        # serversTransport: "insecure-skip"
+        passHostHeader: true
         servers:
-          - url: "http://auto.home.development.mcube.uk"  # Home server exposed via Tailscale
+          - url: "http://auto.home.development.mcube.uk"
 
+    portal-service:
+      loadBalancer:
+        passHostHeader: true
+        servers:
+          - url: "http://desktop.hinny-carat.ts.net:3001"
+    
   middlewares:
+    base-cors:
+      headers:
+        accessControlAllowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+        accessControlAllowHeaders: ["Content-Type", "Authorization"]
+        accessControlAllowCredentials: true
+        accessControlMaxAge: 100
+        addVaryHeader: true
+
+    cors-ferd:
+      chain:
+        middlewares:
+          - base-cors
+      headers:
+        accessControlAllowOriginList: ["https://ferd.mcube.uk"]
+
+    cors-portal:
+      chain:
+        middlewares:
+          - base-cors
+      headers:
+        accessControlAllowOriginList: ["*"]
+
     forwarded-headers:
       headers:
         customRequestHeaders:
           X-Forwarded-Proto: "https"
-    cors-ferd:
-      headers:
-        accessControlAllowOriginList:
-          - "https://ferd.mcube.uk"
-        accessControlAllowMethods:
-          - "GET"
-          - "POST"
-          - "PUT"
-          - "DELETE"
-          - "PATCH"
-        accessControlAllowHeaders:
-          - Content-Type
-          - Authorization
-        accessControlAllowCredentials: true
-        accessControlMaxAge: 100
-        addVaryHeader: true
-    cors-portal:
-      headers:
-        accessControlAllowOriginList:
-          - "*"
-        accessControlAllowMethods:
-          - "GET"
-          - "POST"
-          - "PUT"
-          - "DELETE"
-          - "PATCH"
-        accessControlAllowHeaders:
-          - Content-Type
-          - Authorization
-        accessControlAllowCredentials: true
-        accessControlMaxAge: 100
-        addVaryHeader: true
 
     security:
       headers:
@@ -117,3 +87,10 @@ http:
         regex: "^.*(\\.env|\\.git|docker-compose\\.yml|\\.htaccess|\\.htpasswd|config\\.json).*$"
         replacement: "https://www.youtube.com/watch?v=xvFZjo5PgG0"
         permanent: true
+
+    default-chain:
+      chain:
+        middlewares:
+          - security
+          - block-sensitive
+          - forwarded-headers
