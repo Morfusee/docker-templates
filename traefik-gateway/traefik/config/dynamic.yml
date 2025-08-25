@@ -30,24 +30,15 @@ http:
           - url: "http://auto.home.development.mcube.uk"
     
   middlewares:
-    cors-base:
+    cors-ferd:
       headers:
+        accessControlAllowOriginList:
+          - "https://ferd.mcube.uk"
         accessControlAllowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
         accessControlAllowHeaders: ["Content-Type", "Authorization"]
         accessControlAllowCredentials: true
         accessControlMaxAge: 100
         addVaryHeader: true
-
-    cors-ferd-allow:
-      headers:
-        accessControlAllowOriginList:
-          - "https://ferd.mcube.uk"
-
-    cors-ferd:
-      chain:
-        middlewares:
-          - cors-ferd-allow
-          - cors-base
 
     forwarded-headers:
       headers:
