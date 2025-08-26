@@ -64,7 +64,7 @@ services:
       - traefik.http.routers.komodo-core.rule=Host(`${FQDN}`)
 
       # If you're using TLS (optional)
-      - traefik.http.routers.woodpecker.tls.certresolver=cloudflare
+      - traefik.http.routers.komodo-core.tls.certresolver=cloudflare
       - traefik.http.routers.komodo-core.entrypoints=websecure
       - traefik.http.routers.komodo-core.tls=true
 
