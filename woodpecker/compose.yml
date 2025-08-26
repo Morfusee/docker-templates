@@ -3,15 +3,41 @@ services:
     image: woodpeckerci/woodpecker-server:v3
     labels:
       # Enable Traefik for this container
-      - traefik.enable=true
+      - "traefik.enable=true"
 
-      # Define the router entrypoint and rule
-      - traefik.http.routers.woodpecker.rule=Host(`${FQDN}`)
+      # Woodpecker web UI configuration
+      - "traefik.http.services.woodpecker-service.loadbalancer.server.port=8000"
+      - "traefik.http.routers.woodpecker-secure.rule=Host(`${FQDN_WOODPECKER}`)"
+      - "traefik.http.routers.woodpecker-secure.tls=true"
+      - "traefik.http.routers.woodpecker-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.woodpecker-secure.entrypoints=websecure"
+      - "traefik.http.routers.woodpecker-secure.service=woodpecker-service"
 
-      # If you're using TLS (optional)
-      - traefik.http.routers.woodpecker.tls.certresolver=cloudflare
-      - traefik.http.routers.woodpecker.entrypoints=websecure
-      - traefik.http.routers.woodpecker.tls=true
+      # Optional: HTTP to HTTPS redirect
+      - "traefik.http.routers.woodpecker.rule=Host(`${FQDN_WOODPECKER}`)"
+      - "traefik.http.routers.woodpecker.entrypoints=web"
+      - "traefik.http.routers.woodpecker.service=woodpecker-service"
+      - "traefik.http.middlewares.woodpecker-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.woodpecker-redirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.woodpecker.middlewares=woodpecker-redirect@docker"
+
+      # Woodpecker gRPC endpoint for agents
+      - "traefik.http.services.woodpecker-grpc.loadbalancer.server.port=9000"
+      - "traefik.http.services.woodpecker-grpc.loadbalancer.server.scheme=h2c"
+      - "traefik.http.routers.woodpecker-grpc-secure.rule=Host(`${FQDN_WOODPECKER_GRPC}`)"
+      - "traefik.http.routers.woodpecker-grpc-secure.tls=true"
+      - "traefik.http.routers.woodpecker-grpc-secure.tls.certresolver=cloudflare"
+      - "traefik.http.routers.woodpecker-grpc-secure.entrypoints=websecure"
+      - "traefik.http.routers.woodpecker-grpc-secure.service=woodpecker-grpc"
+      
+      # Optional: HTTP to HTTPS redirect for gRPC
+      - "traefik.http.routers.woodpecker-grpc.rule=Host(`${FQDN_WOODPECKER_GRPC}`)"
+      - "traefik.http.routers.woodpecker-grpc.entrypoints=web"
+      - "traefik.http.routers.woodpecker-grpc.service=woodpecker-grpc"
+      - "traefik.http.middlewares.woodpecker-grpc-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.woodpecker-grpc-redirect.redirectscheme.permanent=true"
+      - "traefik.http.routers.woodpecker-grpc.middlewares=woodpecker-grpc-redirect@docker"
+
     volumes:
       - woodpecker-server-data:/var/lib/woodpecker/
     environment:
