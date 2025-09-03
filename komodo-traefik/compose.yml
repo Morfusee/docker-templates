@@ -56,6 +56,7 @@ services:
   
   core:
     image: ghcr.io/moghtech/komodo-core:${COMPOSE_KOMODO_IMAGE_TAG:-latest}
+    pull_policy: always
     labels:
       # Enable Traefik for this container
       - traefik.enable=true
@@ -100,6 +101,7 @@ services:
   ## https://github.com/moghtech/komodo/tree/main/scripts
   periphery:
     image: ghcr.io/moghtech/komodo-periphery:${COMPOSE_KOMODO_IMAGE_TAG:-latest}
+    pull_policy: always
     labels:
       komodo.skip: # Prevent Komodo from stopping with StopAllContainers
     restart: unless-stopped
