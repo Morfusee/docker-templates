@@ -9,6 +9,7 @@ services:
       - PGID=1000
     volumes:
       - ./st-sync:/var/syncthing
+      - ~/srv:/mnt/srv
     network_mode: host
     restart: unless-stopped
     healthcheck:
