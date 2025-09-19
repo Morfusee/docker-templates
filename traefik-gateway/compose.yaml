@@ -27,7 +27,8 @@ services:
       - TZ=Asia/Manila
     networks:
       - proxy
-      
+
 networks:
   proxy:
     external: true
+    
