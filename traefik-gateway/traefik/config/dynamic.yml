@@ -40,6 +40,16 @@ http:
         accessControlMaxAge: 100
         addVaryHeader: true
 
+    cors-portal:
+      headers:
+        accessControlAllowOriginList:
+          - "https://portal.mcube.uk"
+        accessControlAllowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
+        accessControlAllowHeaders: ["Content-Type", "Authorization"]
+        accessControlAllowCredentials: true
+        accessControlMaxAge: 100
+        addVaryHeader: true
+
     forwarded-headers:
       headers:
         customRequestHeaders:
